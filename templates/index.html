@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Student Result Management System</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        <span>🎓</span>
+        EduResult
+    </div>
+
+    <div class="nav-text">
+        Student Result Management System
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div>
+
+            <p class="small-title">
+                ACADEMIC MANAGEMENT
+            </p>
+
+            <h1>
+                Student Result
+                <span>Management</span>
+            </h1>
+
+            <p>
+                Manage student results, search records,
+                update marks and analyze class performance
+                using a SQL database.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ADD RESULT -->
+
+    <section class="card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <p class="small-title">
+                    NEW RECORD
+                </p>
+
+                <h2>
+                    Add Student Result
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="input-group">
+
+                <label>
+                    Student Name
+                </label>
+
+                <input
+                    type="text"
+                    id="studentName"
+                    placeholder="Enter student name"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+                    Roll Number
+                </label>
+
+                <input
+                    type="text"
+                    id="rollNumber"
+                    placeholder="Enter roll number"
+                >
+
+            </div>
+
+        </div>
+
+
+        <h3 class="sub-heading">
+            Subject Marks
+        </h3>
+
+
+        <div class="marks-grid">
+
+            <div class="input-group">
+
+                <label>Subject 1</label>
+
+                <input
+                    type="number"
+                    id="subject1"
+                    min="0"
+                    max="100"
+                    placeholder="0 - 100"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>Subject 2</label>
+
+                <input
+                    type="number"
+                    id="subject2"
+                    min="0"
+                    max="100"
+                    placeholder="0 - 100"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>Subject 3</label>
+
+                <input
+                    type="number"
+                    id="subject3"
+                    min="0"
+                    max="100"
+                    placeholder="0 - 100"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>Subject 4</label>
+
+                <input
+                    type="number"
+                    id="subject4"
+                    min="0"
+                    max="100"
+                    placeholder="0 - 100"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>Subject 5</label>
+
+                <input
+                    type="number"
+                    id="subject5"
+                    min="0"
+                    max="100"
+                    placeholder="0 - 100"
+                >
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="primary-btn"
+            onclick="calculateResult()"
+        >
+            ➕ Save Result
+        </button>
+
+
+        <div id="addMessage"></div>
+
+    </section>
+
+
+    <!-- SEARCH -->
+
+    <section class="card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <p class="small-title">
+                    DATABASE
+                </p>
+
+                <h2>
+                    Search Student
+                </h2>
+
+                <p>
+                    Search using name or roll number.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Enter name or roll number..."
+            >
+
+            <button
+                class="primary-btn"
+                onclick="searchStudent()"
+            >
+                🔍 Search
+            </button>
+
+        </div>
+
+
+        <div id="searchMessage"></div>
+
+        <div id="searchResults"></div>
+
+    </section>
+
+
+    <!-- ALL STUDENTS -->
+
+    <section class="card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <p class="small-title">
+                    DATABASE
+                </p>
+
+                <h2>
+                    All Students
+                </h2>
+
+                <p>
+                    View every student stored in the database.
+                </p>
+
+            </div>
+
+
+            <button
+                class="secondary-btn"
+                onclick="loadAllStudents()"
+            >
+                👥 View All Students
+            </button>
+
+        </div>
+
+
+        <div id="studentsMessage"></div>
+
+        <div id="studentsResults"></div>
+
+    </section>
+
+
+    <!-- UPDATE RESULT -->
+
+    <section class="card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <p class="small-title">
+                    DATABASE
+                </p>
+
+                <h2>
+                    Update Result
+                </h2>
+
+                <p>
+                    Find a student and update their marks.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="search-box">
+
+            <input
+                type="number"
+                id="updateStudentId"
+                placeholder="Enter Student ID"
+            >
+
+            <button
+                class="primary-btn"
+                onclick="findStudentForUpdate()"
+            >
+                🔍 Find Student
+            </button>
+
+        </div>
+
+
+        <div id="updateForm"></div>
+
+    </section>
+
+
+    <!-- CLASS STATISTICS -->
+
+    <section class="card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <p class="small-title">
+                    ANALYTICS
+                </p>
+
+                <h2>
+                    Class Statistics
+                </h2>
+
+                <p>
+                    View overall class performance.
+                </p>
+
+            </div>
+
+
+            <button
+                class="secondary-btn"
+                onclick="loadStatistics()"
+            >
+                📊 Show Statistics
+            </button>
+
+        </div>
+
+
+        <div id="statisticsResults"></div>
+
+    </section>
+
+
+    <!-- COMPLETE RESULT -->
+
+    <section class="card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <p class="small-title">
+                    RESULT
+                </p>
+
+                <h2>
+                    View Complete Result
+                </h2>
+
+                <p>
+                    View the complete result of a student.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="search-box">
+
+            <input
+                type="number"
+                id="resultStudentId"
+                placeholder="Enter Student ID"
+            >
+
+            <button
+                class="primary-btn"
+                onclick="viewCompleteResult()"
+            >
+                📄 View Result
+            </button>
+
+        </div>
+
+
+        <div id="completeResult"></div>
+
+    </section>
+
+
+</main>
+
+
+<footer>
+
+    <p>
+        Student Result Management System
+    </p>
+
+    <span>
+        Flask • SQLite • HTML • CSS • JavaScript
+    </span>
+
+</footer>
+
+
+<script
+    src="{{ url_for('static', filename='script.js') }}"
+></script>
+
+</body>
+
+</html>
