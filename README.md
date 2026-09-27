@@ -116,6 +116,9 @@ Then open:
 ```text
 http://127.0.0.1:5000
 ```
+## Live Website
+
+[Student Result Management System](https://college-project-p4s3.onrender.com)
 
 ## How the System Works
 
