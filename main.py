@@ -6,19 +6,10 @@ app = Flask(__name__)
 DATABASE = "students.db"
 
 
-# =========================
-# DATABASE CONNECTION
-# =========================
-
 def get_db_connection():
     connection = sqlite3.connect(DATABASE)
     connection.row_factory = sqlite3.Row
     return connection
-
-
-# =========================
-# CREATE DATABASE
-# =========================
 
 def create_database():
 
@@ -49,10 +40,6 @@ def create_database():
     connection.commit()
     connection.close()
 
-
-# =========================
-# CALCULATIONS
-# =========================
 
 def calculate_total(marks):
     return sum(marks)
@@ -90,18 +77,10 @@ def calculate_grade(percentage):
         return "F"
 
 
-# =========================
-# HOME PAGE
-# =========================
-
 @app.route("/")
 def home():
     return render_template("index.html")
 
-
-# =========================
-# ADD RESULT
-# =========================
 
 @app.route("/calculate", methods=["POST"])
 def calculate():
@@ -233,10 +212,6 @@ def calculate():
     })
 
 
-# =========================
-# GET ALL STUDENTS
-# =========================
-
 @app.route("/students", methods=["GET"])
 def get_students():
 
@@ -255,10 +230,6 @@ def get_students():
         for student in students
     ])
 
-
-# =========================
-# SEARCH STUDENT
-# =========================
 
 @app.route("/search", methods=["GET"])
 def search_student():
@@ -294,10 +265,6 @@ def search_student():
         for student in students
     ])
 
-
-# =========================
-# UPDATE RESULT
-# =========================
 
 @app.route(
     "/students/<int:student_id>",
@@ -442,10 +409,6 @@ def update_student(student_id):
     })
 
 
-# =========================
-# DELETE STUDENT
-# =========================
-
 @app.route(
     "/students/<int:student_id>",
     methods=["DELETE"]
@@ -479,10 +442,6 @@ def delete_student(student_id):
             "Student deleted successfully."
     })
 
-
-# =========================
-# CLASS STATISTICS
-# =========================
 
 @app.route("/statistics", methods=["GET"])
 def class_statistics():
@@ -588,10 +547,6 @@ def class_statistics():
 
     return jsonify(dict(stats))
 
-
-# =========================
-# RUN APPLICATION
-# =========================
 
 if __name__ == "__main__":
     create_database()
