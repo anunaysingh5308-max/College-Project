@@ -13,9 +13,8 @@ def get_db_connection():
 
 def create_database():
 
-    connection = get_db_connection()
-
-    connection.execute("""
+    conn = get_db_connection()
+    cursor = conn.execute("""
         CREATE TABLE IF NOT EXISTS students (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
 
@@ -37,13 +36,14 @@ def create_database():
         )
     """)
 
-    connection.commit()
-    connection.close()
+    conn.commit()
+    conn.close()
 
-
+# Calculate the total marks of all subjects
 def calculate_total(marks):
     return sum(marks)
 
+# Decide the grade based on the percentage
 
 def calculate_average(total, number_of_subjects):
     return total / number_of_subjects
@@ -76,6 +76,25 @@ def calculate_grade(percentage):
     else:
         return "F"
 
+def get_result_details(marks):
+    total = calculate_total(marks)
+    average = calculate_average(total, len(marks))
+    percentage = calculate_percentage(total, 500)
+    grade = calculate_grade(percentage)
+
+    result = "PASS" if percentage >= 40 else "FAIL"
+
+    return total, average, percentage, grade, result
+
+def validate_marks(marks):
+    if len(marks) != 5:
+        return False
+
+    for mark in marks:
+        if mark < 0 or mark > 100:
+            return False
+
+    return True
 
 @app.route("/")
 def home():
@@ -92,58 +111,22 @@ def calculate():
         name = data["name"].strip()
         roll_no = data["roll_no"].strip()
 
-        marks = [
-            float(mark)
-            for mark in data["marks"]
-        ]
+        marks = [float(mark)for mark in data["marks"]]
 
     except (KeyError, ValueError, TypeError):
 
-        return jsonify({
-            "error": "Invalid student data."
-        }), 400
+        return jsonify({"error": "Invalid student data."}), 400
 
     if not name or not roll_no:
 
+        return jsonify({"error": "Name and roll number are required."}), 400
+
+    if not validate_marks(marks):
         return jsonify({
-            "error": "Name and roll number are required."
-        }), 400
+        "error": "Marks must be between 0 and 100, and exactly 5 marks are required."
+    }), 400
 
-    if len(marks) != 5:
-
-        return jsonify({
-            "error": "Exactly 5 subject marks are required."
-        }), 400
-
-    for mark in marks:
-
-        if mark < 0 or mark > 100:
-
-            return jsonify({
-                "error": "Marks must be between 0 and 100."
-            }), 400
-
-    total = calculate_total(marks)
-
-    average = calculate_average(
-        total,
-        5
-    )
-
-    percentage = calculate_percentage(
-        total,
-        500
-    )
-
-    grade = calculate_grade(
-        percentage
-    )
-
-    result = (
-        "PASS"
-        if percentage >= 40
-        else "FAIL"
-    )
+    total, average, percentage, grade, result = get_result_details(marks)
 
     connection = get_db_connection()
 
@@ -163,20 +146,12 @@ def calculate():
             result
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        name,
-        roll_no,
+    """, (name,roll_no,
         marks[0],
         marks[1],
         marks[2],
         marks[3],
-        marks[4],
-        total,
-        average,
-        percentage,
-        grade,
-        result
-    ))
+        marks[4],total,average,percentage,grade,result))
 
     student_id = cursor.lastrowid
 
@@ -195,22 +170,14 @@ def calculate():
 
         "total": total,
 
-        "average": round(
-            average,
-            2
-        ),
+        "average": round(average,2),
 
-        "percentage": round(
-            percentage,
-            2
-        ),
+        "percentage": round(percentage,2),
 
         "grade": grade,
 
         "result": result
-
     })
-
 
 @app.route("/students", methods=["GET"])
 def get_students():
@@ -241,8 +208,7 @@ def search_student():
 
     if not query:
 
-        return jsonify({
-            "error": "Please enter a name or roll number."
+        return jsonify({"error": "Please enter a name or roll number."
         }), 400
 
     connection = get_db_connection()
@@ -253,23 +219,14 @@ def search_student():
         WHERE name LIKE ?
            OR roll_no LIKE ?
         ORDER BY id DESC
-    """, (
-        f"%{query}%",
-        f"%{query}%"
-    )).fetchall()
+    """, (f"%{query}%",f"%{query}%")).fetchall()
 
     connection.close()
 
-    return jsonify([
-        dict(student)
-        for student in students
-    ])
+    return jsonify([dict(student)for student in students])
 
 
-@app.route(
-    "/students/<int:student_id>",
-    methods=["PUT"]
-)
+@app.route("/students/<int:student_id>",methods=["PUT"])
 def update_student(student_id):
 
     data = request.json
@@ -280,58 +237,22 @@ def update_student(student_id):
 
         roll_no = data["roll_no"].strip()
 
-        marks = [
-            float(mark)
-            for mark in data["marks"]
-        ]
+        marks = [float(mark)for mark in data["marks"]]
 
     except (KeyError, ValueError, TypeError):
 
-        return jsonify({
-            "error": "Invalid data."
-        }), 400
+        return jsonify({"error": "Invalid data."}), 400
 
     if not name or not roll_no:
 
+        return jsonify({"error": "Name and roll number are required."}), 400
+
+    if not validate_marks(marks):
         return jsonify({
-            "error": "Name and roll number are required."
-        }), 400
+        "error": "Marks must be between 0 and 100, and exactly 5 marks are required."
+    }), 400
 
-    if len(marks) != 5:
-
-        return jsonify({
-            "error": "Exactly 5 marks are required."
-        }), 400
-
-    for mark in marks:
-
-        if mark < 0 or mark > 100:
-
-            return jsonify({
-                "error": "Marks must be between 0 and 100."
-            }), 400
-
-    total = calculate_total(marks)
-
-    average = calculate_average(
-        total,
-        5
-    )
-
-    percentage = calculate_percentage(
-        total,
-        500
-    )
-
-    grade = calculate_grade(
-        percentage
-    )
-
-    result = (
-        "PASS"
-        if percentage >= 40
-        else "FAIL"
-    )
+    total, average, percentage, grade, result = get_result_details(marks)
 
     connection = get_db_connection()
 
@@ -359,13 +280,7 @@ def update_student(student_id):
         marks[2],
         marks[3],
         marks[4],
-        total,
-        average,
-        percentage,
-        grade,
-        result,
-        student_id
-    ))
+        total,average,percentage,grade,result,student_id))
 
     connection.commit()
 
@@ -375,9 +290,7 @@ def update_student(student_id):
 
     if updated == 0:
 
-        return jsonify({
-            "error": "Student not found."
-        }), 404
+        return jsonify({"error": "Student not found."}), 404
 
     return jsonify({
 
@@ -392,15 +305,9 @@ def update_student(student_id):
 
         "total": total,
 
-        "average": round(
-            average,
-            2
-        ),
+        "average": round(average,),
 
-        "percentage": round(
-            percentage,
-            2
-        ),
+        "percentage": round(percentage,),
 
         "grade": grade,
 
@@ -409,10 +316,7 @@ def update_student(student_id):
     })
 
 
-@app.route(
-    "/students/<int:student_id>",
-    methods=["DELETE"]
-)
+@app.route("/students/<int:student_id>",methods=["DELETE"])
 def delete_student(student_id):
 
     connection = get_db_connection()
